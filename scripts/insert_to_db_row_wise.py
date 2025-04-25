@@ -59,5 +59,5 @@ def insert_data():
     conn.close()
     print(f'Data insert successful. Inserted {df.shape[0]} rows.')
 
-if __name__ = "__main__":
+if __name__ == "__main__":
     insert_data()
