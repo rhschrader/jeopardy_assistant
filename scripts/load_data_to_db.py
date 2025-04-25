@@ -3,9 +3,9 @@
 import os
 import pandas as pd
 from dotenv import load_dotenv
-import mysql.connector
-from mysql.connector import Error
-from setup_schema import create_connection
+#import mysql.connector
+#from mysql.connector import Error
+#from setup_schema import create_connection
 import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy import text
@@ -28,12 +28,12 @@ def sanitize_input(input_str):
 def load_jeopardy_data(fpath):
     df = pd.read_csv(fpath, sep='\t') #load tab-separated file
     df = df.replace({np.nan : None}) # for MySQL
-    df['question'] = df['question'].str.replace('"', "'").str.replace('\\', '').str.replace("'", "''")
-    df['answer'] = df['answer'].str.replace('"', "'").str.replace('\\', '')
+    #df['question'] = df['question'].str.replace('"', "'").str.replace('\\', '').str.replace("'", "''")
+    #df['answer'] = df['answer'].str.replace('"', "'").str.replace('\\', '')
     return df
 
 def load_db():
-    data = load_jeopardy_data('../data/combined_season1-40.tsv') #load data
+    data = load_jeopardy_data('../data/cleansed_jeopardy_set.tsv') #load data
     host, user, password, name, table = get_db_creds()
     engine = create_engine(f"mysql+pymysql://{user}:{password}@{host}/{name}", echo = True)
     with engine.connect() as connection:
