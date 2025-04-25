@@ -1,6 +1,7 @@
 ## This function will cleanse the dataframe, ensuring it's able to be inserted into the MySQL database
 
 import pandas as pd
+import numpy as np
 
 def cleanse_data(fpath, sep = ','):
     df = pd.read_csv(fpath, sep=sep) # load jeopardy dataset to a dataframe
