@@ -3,3 +3,6 @@
 
 # python environment
 /.venv/
+
+# data
+/data/
