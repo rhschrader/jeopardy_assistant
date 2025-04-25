@@ -24,7 +24,7 @@ def create_connection():
 
 def create_table():
     create_table_query = """
-    CREATE TABLE IF NOT EXISTS qa_pairs (
+    CREATE TABLE IF NOT EXISTS main_data (
         id INT AUTO_INCREMENT PRIMARY KEY,
         round VARCHAR(50),
         clue_value VARCHAR(20),
