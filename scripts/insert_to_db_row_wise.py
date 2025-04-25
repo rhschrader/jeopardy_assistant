@@ -3,6 +3,7 @@ import pandas as pd
 import os
 from dotenv import load_dotenv
 from mysql.connector import Error
+from cleanse_data import cleanse_data
 from tqdm import tqdm
 
 load_dotenv()  # Load from .env file
@@ -22,38 +23,41 @@ def create_connection(): # Create DB connection
         print(f"Connection error: {e}")
         return None
 
-# Start connection
-conn = create_connection()
-cursor = conn.cursor()
+def insert_data():
+    # Start connection
+    conn = create_connection()
+    cursor = conn.cursor()
 
-# Load data
-df = pd.read_csv('../data/cleansed_jeopardy_set.csv')
-df = df.replace({np.nan : None}) # for MySQL
+    # Load data and cleanse data
+    df = cleanse_data('../data/combined_season1-40.tsv', sep = '\t')
 
-# 3. Write the INSERT statement
-insert_sql = """
-    INSERT INTO qa_pairs (round, clue_value, daily_double_value, category, comments, answer, question, air_date, notes)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-"""
+    # SQL INSERT statement
+    insert_sql = """
+        INSERT INTO qa_pairs (round, clue_value, daily_double_value, category, comments, answer, question, air_date, notes)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+    """
 
-# 4. Loop through DataFrame rows
-for i, row in tqdm(df.iterrows(), total = df.shape[0]:
-    values = (
-        row['round'],
-        row['clue_value'],
-        row['daily_double_value'],
-        row['category'],
-        row['comments'],
-        row['answer'],
-        row['question'],
-        row['air_date'],
-        row['notes']
-    )
-    cursor.execute(insert_sql, values)
-    if i % 500 == 0:
-        conn.commit()
+    # Loop through the dataframe. This will take a few hours
+    for i, row in tqdm(df.iterrows(), total = df.shape[0]):
+        values = (
+            row['round'],
+            row['clue_value'],
+            row['daily_double_value'],
+            row['category'],
+            row['comments'],
+            row['answer'],
+            row['question'],
+            row['air_date'],
+            row['notes']
+        )
+        cursor.execute(insert_sql, values)
+        if i % 500 == 0: # commit every 500 rows
+            conn.commit()
 
-# 5. Commit and close
-conn.commit()
-cursor.close()
-conn.close()
+    conn.commit() # commit final batch
+    cursor.close() 
+    conn.close()
+    print(f'Data insert successful. Inserted {df.shape[0]} rows.')
+
+if __name__ = "__main__":
+    insert_data()

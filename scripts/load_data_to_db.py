@@ -37,20 +37,28 @@ def load_db():
     host, user, password, name, table = get_db_creds()
     engine = create_engine(f"mysql+pymysql://{user}:{password}@{host}/{name}", echo = True)
     with engine.connect() as connection:
-        data.to_sql(table, con=engine, if_exists='append', index=False, chunksize=500)
-    """db = create_connection() # connect to MySQL database
-    cursor = db.cursor() # cursor
-    sql_query = """
-    #INSERT INTO jeopardy.qa_pairs (round, clue_value, daily_double_value, category, comments, answer, question, air_date, notes)
-    #VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-
-    """for _, row in data.iterrows():
-        cursor.execute(sql_query, row.values)
-    #db.commit()
-    #print(f"Inserted {cursor.rowcount} rows!")
-    cursor.close()
-    db.close()
-    print('Connection closed.')"""
+        data.to_sql(table, con=engine, if_exists='append', index=False, chunksize=500) 
+"""
+data = load_jeopardy_data('../data/cleansed_jeopardy_set.tsv') #load data
+host, user, password, name, table = get_db_creds()
+engine = create_engine(f"mysql+pymysql://{user}:{password}@{host}/{name}", echo = True)
+with engine.begin() as connection:  # Auto commits
+    for _, row in df.iterrows():
+        sql = text(
+            INSERT INTO qa_pairs (round, clue_value, daily_double_value, category, comments, answer, question, air_date, notes)
+            VALUES (:round, :clue_value, :daily_double_value, :category, :comments, :answer, :question, :air_date, :notes)
+        )
+        connection.execute(sql, {
+            'round': row['round'],
+            'clue_value': row['clue_value'],
+            'daily_double_value': row['daily_double_value'],
+            'category': row['category'],
+            'comments': row['comments'],
+            'answer': row['answer'],
+            'question': row['question'],
+            'air_date': row['air_date'],
+            'notes': row['notes']
+        })"""
 
 if __name__ == "__main__":
     load_db()
