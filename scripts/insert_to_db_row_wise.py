@@ -23,6 +23,15 @@ def create_connection(): # Create DB connection
     except Error as e:
         print(f"Connection error: {e}")
         return None
+    
+def combine_columns(df):
+    df["String Combination"] = ('In round ' + df['round'].astype(str) + ', with a value of ' + df['clue_value'].astype(str) +
+    ', a daily double value of ' + df['daily_double_value'].astype(str) + ', in the category ' + df['category'].astype(str) +
+    ', the question was ' + df['answer'].astype(str) + ' and the answer was ' + df['question'].astype(str) + '. This was on ' +
+    df['air_date'].astype(str) + '.')
+    df.loc[df['comments'].str.contains(r"[a-zA-Z]"), 'String Combination'] += ' Comments: ' + df['comments'].astype(str) + '.'
+    df.loc[df['notes'].str.contains(r"[a-zA-Z]"), 'String Combination'] += ' Notes: ' + df['notes'].astype(str) + '.'
+    return df
 
 def insert_data():
     # Start connection
@@ -34,8 +43,8 @@ def insert_data():
 
     # SQL INSERT statement
     insert_sql = """
-        INSERT INTO qa_pairs (round, clue_value, daily_double_value, category, comments, answer, question, air_date, notes)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO qa_pairs (round, clue_value, daily_double_value, category, comments, answer, question, air_date, notes, string_combination)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
 
     # Loop through the dataframe. This will take a few hours
@@ -49,7 +58,8 @@ def insert_data():
             row['answer'],
             row['question'],
             row['air_date'],
-            row['notes']
+            row['notes'],
+            row['string_combination']
         )
         cursor.execute(insert_sql, values)
         if i % 500 == 0: # commit every 500 rows
