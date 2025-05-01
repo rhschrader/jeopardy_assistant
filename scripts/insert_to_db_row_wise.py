@@ -25,12 +25,12 @@ def create_connection(): # Create DB connection
         return None
     
 def combine_columns(df):
-    df["String Combination"] = ('In round ' + df['round'].astype(str) + ', with a value of ' + df['clue_value'].astype(str) +
+    df["string_for_embedding"] = ('In round ' + df['round'].astype(str) + ', with a value of ' + df['clue_value'].astype(str) +
     ', a daily double value of ' + df['daily_double_value'].astype(str) + ', in the category ' + df['category'].astype(str) +
     ', the question was ' + df['answer'].astype(str) + ' and the answer was ' + df['question'].astype(str) + '. This was on ' +
     df['air_date'].astype(str) + '.')
-    df.loc[df['comments'].str.contains(r"[a-zA-Z]"), 'String Combination'] += ' Comments: ' + df['comments'].astype(str) + '.'
-    df.loc[df['notes'].str.contains(r"[a-zA-Z]"), 'String Combination'] += ' Notes: ' + df['notes'].astype(str) + '.'
+    df.loc[df['comments'].str.contains(r"[a-zA-Z]"), 'string_for_embedding'] += ' Comments: ' + df['comments'].astype(str) + '.'
+    df.loc[df['notes'].str.contains(r"[a-zA-Z]"), 'string_for_embedding'] += ' Notes: ' + df['notes'].astype(str) + '.'
     return df
 
 def insert_data():
@@ -43,7 +43,7 @@ def insert_data():
 
     # SQL INSERT statement
     insert_sql = """
-        INSERT INTO qa_pairs (round, clue_value, daily_double_value, category, comments, answer, question, air_date, notes, string_combination)
+        INSERT INTO qa_pairs (round, clue_value, daily_double_value, category, comments, answer, question, air_date, notes, string_for_embedding)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
 
@@ -59,7 +59,7 @@ def insert_data():
             row['question'],
             row['air_date'],
             row['notes'],
-            row['string_combination']
+            row['string_for_embedding']
         )
         cursor.execute(insert_sql, values)
         if i % 500 == 0: # commit every 500 rows
