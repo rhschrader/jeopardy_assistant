@@ -34,7 +34,7 @@ def create_table():
         answer TEXT NOT NULL,
         question TEXT NOT NULL,
         air_date DATE,
-        notes TEXT,
+        notes TEXT
     );
     """
 
