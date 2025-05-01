@@ -31,7 +31,6 @@ def insert_data():
 
     # Load data and cleanse data
     df = cleanse_data('../data/combined_season1-40.tsv', sep = '\t')
-    df = combine_columns(df) # Combine columns for embedding
 
     # SQL INSERT statement
     insert_sql = """
