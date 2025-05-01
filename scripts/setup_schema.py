@@ -35,7 +35,7 @@ def create_table():
         question TEXT NOT NULL,
         air_date DATE,
         notes TEXT,
-        combination_string TEXT,
+        string_for_embedding TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     """
