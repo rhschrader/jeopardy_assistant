@@ -44,7 +44,7 @@ def insert_data():
 
     # SQL INSERT statement
     insert_sql = """
-        INSERT INTO qa_pairs (round, clue_value, daily_double_value, category, comments, answer, question, air_date, notes, string_for_embedding)
+        INSERT INTO main_data (round, clue_value, daily_double_value, category, comments, answer, question, air_date, notes, string_for_embedding)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
 
