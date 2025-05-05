@@ -4,8 +4,8 @@ from google import genai
 from google.genai import types
 import time
 import sys
-sys.path.insert(1, '../functions')
-sys.path.insert(1, '../scripts/embedding')
+sys.path.insert(1, '../../functions')
+sys.path.insert(1, '../../scripts/embedding')
 from load_data_from_db import load_data_sql, create_postgres_connection
 from connect_google_api import connect_to_client
 from insert_to_postgres import insert_to_postgres
