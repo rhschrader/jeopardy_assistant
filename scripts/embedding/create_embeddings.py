@@ -11,9 +11,9 @@ from connect_google_api import connect_to_client
 from insert_to_postgres import insert_to_postgres
 from tqdm import tqdm
 
-RATE_LIMIT = 500 # max requests per minute
+RATE_LIMIT = 150 # max requests per minute
 TOKEN_LIMIT = 2048 # max token size
-UPLOAD_INTERVAL = 150 # upload every 500 rows to the db
+UPLOAD_INTERVAL = 500 # upload every 500 rows to the db
 TIME_INTERVAL = 60 # 60s is the limit for 1500 requests
 TABLE_NAME = 'vectors'
 
