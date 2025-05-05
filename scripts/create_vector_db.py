@@ -2,7 +2,7 @@
 import pandas as pd
 import sys
 import os
-sys.path.insert('../functions')
+sys.path.insert(1, '../functions')
 from load_data_from_db import create_postgres_connection
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
