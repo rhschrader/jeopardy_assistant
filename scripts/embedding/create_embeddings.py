@@ -47,7 +47,7 @@ def reset_embedding_dict():
 def create_embeddings():
 
     # dataframe of the jeopardy dataset
-    jeopardy_set = load_data_sql(db_name = 'main_data', limit = 1100)
+    jeopardy_set = load_data_sql(db_name = 'main_data')
 
     # load google client to create the embeddings
     client = connect_to_client()
@@ -65,7 +65,7 @@ def create_embeddings():
     # list to keep track of timestamps
     timestamps = []
     
-    for i, row in tqdm(jeopardy_set[:1100].iterrows(), total=jeopardy_set[:1100].shape[0]):
+    for i, row in tqdm(jeopardy_set.iterrows(), total=jeopardy_set.shape[0]):
         
         # get embedding result
         result = get_single_embedding(client=client, model=model, row=row)
