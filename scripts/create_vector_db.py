@@ -13,9 +13,11 @@ def create_table():
     
     query = """
     CREATE TABLE IF NOT EXISTS vectors  (
-        id INTEGER PRIMARY KEY
-        text TEXT NOT NULL
-        embedding vector(1))"""
+        id INTEGER PRIMARY KEY,
+        qa_text TEXT NOT NULL,
+        embedding vector(1)
+    );
+    """
 
     try:
         with engine.connect() as connection:
