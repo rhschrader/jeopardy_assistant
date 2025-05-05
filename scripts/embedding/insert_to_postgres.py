@@ -17,11 +17,13 @@ def insert_to_postgres(df, table_name = 'vectors'):
 
     except SQLAlchemyError as e:
         logging.error(f"SQLAlchemy error while inserting into {table_name}: {e}")
+        print(f"SQLAlchemy error while inserting into {table_name}: {e}")
     
     except ValueError as e:
         logging.error(f"Value error (likely a dataframe/column issue): {e}")
+        print(f"Value error (likely a dataframe/column issue): {e}")
     
     except Exception as e:
         logging.error(f"Unexpected error during insert: {e}")
-    
+        print(f"Unexpected error during insert: {e}")
     return

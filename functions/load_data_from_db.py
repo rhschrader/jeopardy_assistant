@@ -33,7 +33,7 @@ def load_data_sql(db_name = 'main_data', limit = None):
     if limit:
         select_sql += f" LIMIT {limit}"
     select_sql += ";"
-    print(select_sql)
+    #print(select_sql)
 
     # Execute the query and fetch the data
     cursor.execute(select_sql)
