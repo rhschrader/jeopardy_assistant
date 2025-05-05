@@ -101,6 +101,10 @@ def create_embeddings():
     print(f'Complete. Uploaded {uploaded_rows} to {TABLE_NAME}!')
 
 
+if __name__ == '__main__':
+    create_embeddings()
+
+
 
 
     
