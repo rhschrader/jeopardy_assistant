@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from mysql.connector import Error
 import mysql.connector
+from sqlalchemy import create_engine
 
 
 load_dotenv()  # Load from .env file
@@ -50,3 +51,18 @@ def load_data_sql(db_name = 'main_data', limit = None):
     print(f'Loaded {df.shape[0]} rows from {db_name} table')
 
     return df
+
+#-------------- Postgresql connection ----------------
+def create_postgres_connection():
+    
+    # load credentials and connection details stored in .env
+    user = os.getenv("POSTGRES_USER")
+    password = os.getenv("POSTGRES_PASSWORD")
+    host = os.getenv("POSTGRES_HOST")
+    name = os.getenv("POSTGRES_NAME")
+    port = os.getenv("POSTGRES_PORT")
+
+    # create connection
+    engine = create_engine(f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{name}")
+    
+    return engine
