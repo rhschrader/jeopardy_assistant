@@ -26,12 +26,20 @@ def get_single_embedding(client, model, row):
         return None
     else:
         # call embedding api
-        result = client.models.embed_content(
-            model=model,
-            contents=row['string_for_embedding'],
-            config = types.EmbedContentConfig(task_type = 'RETRIEVAL_DOCUMENT')
-        )
-        return result.embeddings[0].values
+        for attempt in range(1, 5):
+            try:
+                result = client.models.embed_content(
+                    model=model,
+                    contents=row['string_for_embedding'],
+                    config = types.EmbedContentConfig(task_type = 'RETRIEVAL_DOCUMENT')
+                )
+                return result.embeddings[0].values
+            except Exception as e:
+                print(f"Attempt {attempt} failed: {e}")
+                if attempt == 4:
+                    print("Max attempts reached. Skipping row.")
+                    return None
+                time.sleep(62)  # wait for 62 seconds before retrying
     
 def request_per_minute_check(timestamps):
     if len(timestamps) >= RATE_LIMIT:
