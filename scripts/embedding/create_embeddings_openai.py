@@ -1,58 +1,58 @@
 # Imports
 import pandas as pd
-from google import genai
-from google.genai import types
+import openai
 import time
 import sys
 sys.path.insert(1, '../../functions')
 sys.path.insert(1, '/embeddings')
 from load_data_from_db import load_data_sql, create_postgres_connection
-from connect_google_api import connect_to_google_client
 from connect_openai_api import connect_to_openai_client
 from insert_to_postgres import insert_to_postgres
 from tqdm import tqdm
+import tiktoken
 
-RATE_LIMIT = 150 # max requests per minute
-TOKEN_LIMIT = 2048 # max token size
+### REMINDER - CREATE LOGIC TO CHECK TOTAL TOKEN LIMIT
+
+RATE_LIMIT = 1000 # max requests per minute
+TOKEN_LIMIT = 8191 # max token size
 UPLOAD_INTERVAL = 500 # upload every 500 rows to the db
 TIME_INTERVAL = 60 # 60s is the limit for 1500 requests
 TABLE_NAME = 'vectors'
 
 # Function to get the embedding for a single row
-def get_single_embedding(client, model, row, service='openai'):
+def get_single_embedding(client, model, row, total_tokens, service='openai'):
     # check token size is under the limit
-    total_tokens = len(row['string_for_embedding']) / 4 # rough estimate of token size
-    if total_tokens > TOKEN_LIMIT:
+    #check, total_tokens = count_tokens(row['string_for_embedding'], total_tokens)
+    check = True
+    if not check:
         id = row['id']
-        return None
+        return None, total_tokens
     else:
         # call embedding api
         for attempt in range(1, 5):
             try:
-                if service == 'openai':
-                    response = client.embeddings.create(
-                        input=row['string_for_embedding'],
-                        model=model
-                    )
-                    return response.data[0].embedding
-                elif service == 'google':
-                    result = client.models.embed_content(
-                        model=model,
-                        contents=row['string_for_embedding'],
-                        config = types.EmbedContentConfig(task_type = 'RETRIEVAL_DOCUMENT')
-                    )
-                return result.embeddings[0].values
+                response = client.embeddings.create(
+                    input=row['string_for_embedding'],
+                    model=model
+                )
+                return response.data[0].embedding, total_tokens
             except Exception as e:
                 print(f"Attempt {attempt} failed: {e}")
                 if attempt == 4:
                     print("Max attempts reached. Skipping row.")
-                    return None
+                    return None, total_tokens
                 time.sleep(62)  # wait for 62 seconds before retrying
-
-# Function to make OpenAI API requests
-def openai_call(model, row):
-
     
+def count_tokens(text, total_tokens):
+    encoding = tiktoken.get_encoding("cl100k_base")
+    tokens = encoding.encode(text)
+    if len(tokens) > total_tokens:
+        print(f"Token size too long. {len(tokens)} tokens.")
+        return False, total_tokens
+    else:
+        total_tokens += len(tokens)
+        return True, total_tokens
+
 def request_per_minute_check(timestamps):
     if len(timestamps) >= RATE_LIMIT:
         sleep_time = TIME_INTERVAL - (timestamps[-1] - timestamps[0])
@@ -89,11 +89,14 @@ def create_embeddings():
 
     # list to keep track of timestamps
     timestamps = []
+
+    # total tokens used
+    total_tokens = 0
     
     for i, row in tqdm(jeopardy_set.iterrows(), total=jeopardy_set.shape[0]):
         
         # get embedding result
-        result = get_single_embedding(client=client, model=model, row=row)
+        result, total_tokens = get_single_embedding(client=client, model=model, row=row, total_tokens=total_tokens)
         
         # check that we are below the allowed request limit. In this case it's 1500 requests / 60s
         now = time.time()
