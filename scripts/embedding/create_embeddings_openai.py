@@ -15,7 +15,7 @@ import tiktoken
 
 RATE_LIMIT = 1000 # max requests per minute
 TOKEN_LIMIT = 8191 # max token size
-UPLOAD_INTERVAL = 500 # upload every 500 rows to the db
+UPLOAD_INTERVAL = 100 # upload every 500 rows to the db
 TIME_INTERVAL = 60 # 60s is the limit for 1500 requests
 TABLE_NAME = 'vectors'
 
