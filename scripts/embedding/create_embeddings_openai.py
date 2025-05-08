@@ -10,6 +10,8 @@ from connect_openai_api import connect_to_openai_client
 from insert_to_postgres import insert_to_postgres
 from tqdm import tqdm
 import tiktoken
+import os
+import pickle
 
 ### REMINDER - CREATE LOGIC TO CHECK TOTAL TOKEN LIMIT
 
@@ -92,8 +94,16 @@ def create_embeddings():
 
     # total tokens used
     total_tokens = 0
-    
-    for i, row in tqdm(jeopardy_set.iterrows(), total=jeopardy_set.shape[0]):
+
+    if os.path.exists('last_i.pkl'):
+        with open('last_i.pkl', 'rb') as f:
+            last_i = pickle.load(f)
+    else:
+        last_i = 0
+    print(f"Starting from index {last_i}.")
+
+    # loop through the dataframe
+    for i, row in tqdm(jeopardy_set[last_i:].iterrows(), total=jeopardy_set[last_i:].shape[0]):
         
         # get embedding result
         result, total_tokens = get_single_embedding(client=client, model=model, row=row, total_tokens=total_tokens)
@@ -123,6 +133,15 @@ def create_embeddings():
             insert_to_postgres(embeddings_df, table_name=TABLE_NAME) # insert into db
             uploaded_rows += len(embeddings['id']) # to track total rows
             embeddings = reset_embedding_dict() # save memory, clear the dict after it's uploaded
+            # save progress in case of interruption
+            last_i = i
+            with open('last_i.pkl', 'wb') as f:
+                pickle.dump(last_i, f)
+
+        # save progress in case of interruption
+        last_i = i
+        with open('last_i.pkl', 'wb') as f:
+            pickle.dump(last_i, f)
         
     # final upload
     if len(embeddings['id']) > 0:
