@@ -1,7 +1,7 @@
 import pandas as pd
 import sys
 sys.path.insert(1, '../../functions')
-from load_data_from_db import load_data_sql, create_postgres_connection
+from functions.db_functions import load_data_sql, create_postgres_connection
 from sqlalchemy.exc import SQLAlchemyError
 import logging
 
