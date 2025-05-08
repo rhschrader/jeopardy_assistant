@@ -7,7 +7,7 @@ sys.path.insert(1, '../../functions')
 sys.path.insert(1, '/embeddings')
 from load_data_from_db import load_data_sql, create_postgres_connection
 from connect_openai_api import connect_to_openai_client
-from insert_to_postgres import insert_to_postgres
+from functions.insert_to_postgres import insert_to_postgres
 from tqdm import tqdm
 import tiktoken
 
