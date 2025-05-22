@@ -24,19 +24,20 @@ def create_postgres_connection():
     return engine
 
 class MySQL:
-    def __init__(self, table_name = 'main_data', chunk_size = 500):
-        self.host=os.getenv("DB_HOST"),
-        self.user=os.getenv("DB_USER"),
-        self.password=os.getenv("DB_PASSWORD"),
+    def __init__(self, table_name = 'main_data'):
+        self.host=os.getenv("DB_HOST")
+        self.user=os.getenv("DB_USER")
+        self.password=os.getenv("DB_PASSWORD")
         self.database = os.getenv("DB_NAME")
         self.table_name = table_name
-        self.chunk_size = chunk_size
-        self.url = f"mysql+pymysql://{self.user}:{self.password}@{self.host}/{self.table_name}"
+        self.url = f"mysql+pymysql://{self.user}:{self.password}@{self.host}:3306/{self.database}"
         self.engine = create_engine(self.url)
         self.last_id = 0
 
     # Load 500 rows at a time
-    def load_chunk(self, table = None):
+    def load_chunk(self, table = None, chunk_size = 500):
+        if chunk_size:
+            self.chunk_size = chunk_size
         if table:
             self.table_name = table
         query = f"""
@@ -79,18 +80,53 @@ class MySQL:
             except SQLAlchemyError as e:
                 print(f'Error executing query: {query}: {e}')
                 return None
-
+            
+    def load_from_last_id(self, chunk_size = 100, last_id = None, table_name = None):
+        if table_name:
+            self.table_name = table_name
+        if last_id:
+            self.last_id = last_id
+        query = f"""
+            SELECT * FROM {self.table_name}
+            WHERE id > {self.last_id}
+            ORDER BY id ASC
+            LIMIT {chunk_size};
+        """
+        with self.engine.connect() as connection:
+            try:
+                df = pd.read_sql(query, connection)
+                if not df.empty:
+                    self.last_id = df['id'].iloc[-1]
+                return df
+            except SQLAlchemyError as e:
+                print(f"Error loading from last id: {e}")
+                return pd.DataFrame()
+            
+    def get_table_size(self, table_name = None):
+        if table_name:
+            self.table_name = table_name
+        query = f"""
+            SELECT COUNT(*) FROM {self.table_name};
+        """
+        with self.engine.connect() as connection:
+            try:
+                result = connection.execute(text(query))
+                return result.scalar()
+            except SQLAlchemyError as e:
+                print(f'Error getting table size: {e}')
+                return None
             
 
 class PostGreSQL:
-    def __init__(self, table_name = 'vectors'):
+    def __init__(self, table_name = 'vector_db'):
         # load credentials and connection details stored in .env
         self.user = os.getenv("POSTGRES_USER")
         self.password = os.getenv("POSTGRES_PASSWORD")
         self.host = os.getenv("POSTGRES_HOST")
         self.port = os.getenv("POSTGRES_PORT")
+        self.db_name = os.getenv("POSTGRES_NAME")
         self.table_name = table_name
-        self.engine = create_engine(f"postgresql+psycopg2://{self.user}:{self.password}@{self.host}:{self.port}/{self.table_name}")
+        self.engine = create_engine(f"postgresql+psycopg2://{self.user}:{self.password}@{self.host}:{self.port}/{self.db_name}")
 
     def insert_data(self, df, table_name = None):
         if not table_name:
@@ -124,5 +160,36 @@ class PostGreSQL:
         with self.engine.connect() as connection:
             try:
                 result = connection.execute(text(query))
+                print(f"Table {table_name} created successfully.")
+                return result
+            except SQLAlchemyError as e:
+                print(f"Error creating table {table_name}: {e}")
+                return None
+            
+    def execute_query(self, query, table_name = None):
+        with self.engine.connect() as connection:
+            try:
+                result = connection.execute(text(query))
+                return result
+            except SQLAlchemyError as e:
+                print(f'Error executing query: {query} - {e}')
+                return None
+            
+    def get_last_id(self, table_name = None):
+        if table_name:
+            self.table_name = table_name
+        query = f"""
+            SELECT MAX(id) FROM {self.table_name}
+        """
+        with self.engine.connect() as connection:
+            try:
+                result = connection.execute(text(query))
+                last_id = result.scalar()
+                if last_id is None:
+                    last_id = 0
+                return last_id
+            except SQLAlchemyError as e:
+                print(f'Error getting last id from {self.table_name}: {e}')
+                return None
 
 
