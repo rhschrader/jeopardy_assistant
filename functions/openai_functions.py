@@ -8,8 +8,6 @@ import tiktoken
 
 load_dotenv()
 
-os.environ['OPENAI_API_KEY'] = os.getenv('OPENAI_API_KEY')
-
 
 def connect_to_openai_client():
     # Creates connection with openai client via API key
@@ -59,11 +57,11 @@ def get_embedding(string, model, client):
             print("Max attempts reached. Skipping row.")
             return None
         
-class OpenAI:
+class OpenAI_Client:
     def __init__(self, embedding_model = 'text-embedding-3-small', encoding_model = 'cl100k_base'):
         self.embedding_model = embedding_model
         self.encoding_model = encoding_model
-        self.client = OpenAI(api_key = os.environ['OPENAI_API_KEY'])
+        self.client = OpenAI(api_key = os.getenv('OPENAI_API_KEY'))
         self.embedding_dims = 1536
         self.total_tokens = 0
 
