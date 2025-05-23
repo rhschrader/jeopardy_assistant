@@ -58,12 +58,13 @@ def get_embedding(string, model, client):
             return None
         
 class OpenAI_Client:
-    def __init__(self, embedding_model = 'text-embedding-3-small', encoding_model = 'cl100k_base'):
+    def __init__(self, embedding_model = 'text-embedding-3-small', encoding_model = 'cl100k_base', chat_model = 'gpt-4-turbo'):
         self.embedding_model = embedding_model
         self.encoding_model = encoding_model
         self.client = OpenAI(api_key = os.getenv('OPENAI_API_KEY'))
         self.embedding_dims = 1536
         self.total_tokens = 0
+        self.chat_model = chat_model
 
     def get_embedding(self, string):
         # Take's a string and gets embedding using OpenAI's model
@@ -97,3 +98,14 @@ class OpenAI_Client:
         num_tokens = len(encoding.encode(string))
         self.total_tokens += num_tokens
         return num_tokens
+    
+    def chat_with_llm(self, messages, model = None, temperature = 0.3):
+        if model is None:
+            model = self.chat_model
+        response = self.client.chat.completions.create(
+            model = model,
+            messages = messages,
+            temperature = temperature
+        )
+        return response.choices[0].message.content
+    
