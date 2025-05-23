@@ -1,3 +1,5 @@
+### This script is used to populate the vector database with embeddings from the mysql database
+
 # -------- Imports --------
 import pandas as pd
 from functions.db_functions import MySQL, PostGreSQL
