@@ -235,6 +235,15 @@ class PostGreSQL:
             USING hnsw (embedding vector_cosine_ops)
             WITH (m = 4, ef_construction = 10);
         """
+        # set the max RAM for the index creation. The limit to my current RDS instance is 1 GB (not ideal)
+        with self.connection.cursor() as cursor:
+            try:
+                cursor.execute("SET maintenance_work_mem = '0.9GB';")
+                self.connection.commit()
+            except Error as e:
+                print(f"Error setting maintenance_work_mem: {e}")
+                self.connection.rollback()
+
         # Build the index
         with self.connection.cursor() as cursor:
             try:
