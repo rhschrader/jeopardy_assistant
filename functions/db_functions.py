@@ -225,4 +225,36 @@ class PostGreSQL:
             except Error as e:
                 print(f'Error executing query: {e}')
                 return None
-
+            
+    def create_hnsw_index(self, table_name = None):
+        if table_name is None:
+            table_name = self.table_name
+        query = f"""
+            CREATE INDEX IF NOT EXISTS idx_embedding 
+            ON {table_name} 
+            USING hnsw (embedding vector_cosine_ops)
+            WITH (m = 4, ef_construction = 10);
+        """
+        # Build the index
+        with self.connection.cursor() as cursor:
+            try:
+                cursor.execute(query)
+                self.connection.commit()
+                print(f"Index created on {table_name} successfully.")
+            except Error as e:
+                print(f"Error creating index on {table_name}: {e}")
+                self.connection.rollback()
+        
+        # Update the statistics for the query planner
+        # to ensure that the index is used for the vector similarity search
+        ## REFERENCE: https://github.com/dmagda/openai-cookbook/blob/main/examples/vector_databases/postgresql/getting_started_with_postgresql_pgvector.ipynb
+        with self.connection.cursor() as cursor:
+            try:
+                cursor.execute(f"VACUUM ANALYZE {table_name};")
+                self.connection.commit()
+                print(f"Statistics validated for {table_name}.")
+                print("Index created successfully!")
+            except Error as e:
+                print(f"Error updating statistics for {table_name}: {e}")
+                self.connection.rollback()
+            
