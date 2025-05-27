@@ -238,7 +238,7 @@ class PostGreSQL:
         # set the max RAM for the index creation. The limit to my current RDS instance is 1 GB (not ideal)
         with self.connection.cursor() as cursor:
             try:
-                cursor.execute("SET maintenance_work_mem = '0.9GB';")
+                cursor.execute("SET maintenance_work_mem = '1GB';")
                 self.connection.commit()
             except Error as e:
                 print(f"Error setting maintenance_work_mem: {e}")
