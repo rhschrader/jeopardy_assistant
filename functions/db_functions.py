@@ -233,17 +233,17 @@ class PostGreSQL:
             CREATE INDEX IF NOT EXISTS idx_embedding 
             ON {table_name} 
             USING hnsw (embedding vector_cosine_ops)
-            WITH (m = 4, ef_construction = 10);
+            WITH (m = 16, ef_construction = 64);
         """
         # set the max RAM for the index creation. The limit to my current RDS instance is 1 GB (not ideal)
-        with self.connection.cursor() as cursor:
+        """with self.connection.cursor() as cursor:
             try:
                 cursor.execute("SET maintenance_work_mem = '1GB';")
                 self.connection.commit()
             except Error as e:
                 print(f"Error setting maintenance_work_mem: {e}")
                 self.connection.rollback()
-
+        """
         # Build the index
         with self.connection.cursor() as cursor:
             try:
