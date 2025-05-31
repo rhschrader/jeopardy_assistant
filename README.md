@@ -1,3 +1,14 @@
+---
+title: Jeopardy Assistant
+emoji: 🤖
+colorFrom: blue
+colorTo: purple
+sdk: gradio
+sdk_version: 4.24.0
+app_file: rag_bot.py
+pinned: false
+---
+
 # jeopardy_assistant
 ### Project Overview
 My goal is to create a RAG chatbot based on all Jeopardy questions from the past 40 years. Ideally, this can be used as a resource to develop trivia questions for trivia nights, team building activities, or Ethan Erusha's Tuesday Trivia.
