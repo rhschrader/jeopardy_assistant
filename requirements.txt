@@ -19,14 +19,6 @@ docopt==0.6.2
 exceptiongroup==1.2.2
 executing==2.2.0
 fastjsonschema==2.21.1
-google-ai-generativelanguage==0.6.15
-google-api-core==2.25.0rc0
-google-api-python-client==2.168.0
-google-auth==2.39.0
-google-auth-httplib2==0.2.0
-google-genai==1.12.1
-google-generativeai==0.8.5
-googleapis-common-protos==1.70.0
 grpcio==1.71.0
 grpcio-status==1.71.0
 h11==0.16.0
